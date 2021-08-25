@@ -12,7 +12,7 @@ let latestPatchTweet = new Date(2020, 11, 24, 10, 33, 30, 0);
 const inclusion = "https://www.dota2.com/patches/";
 
 client.on("message", (msg) => {
-    if (msg.content === "!patchnotes" && msg.channelId === auth.channelIdTest) {
+    if (msg.content === "!patchnotes" && msg.channelId === auth.channelId) {
         getPatchNotes();
     }
 });
