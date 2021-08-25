@@ -8,8 +8,11 @@ const fetch = require("node-fetch");
 const { ToadScheduler, SimpleIntervalJob, Task } = require("toad-scheduler");
 const scheduler = new ToadScheduler();
 
-let latestPatchTweet = new Date(2020, 11, 24, 10, 33, 30, 0);
-const inclusion = "https://www.dota2.com/patches/";
+let latestPatchTweet = new Date(2021, 07, 19, 10, 00, 30);
+const inclusion = [
+    "https://www.dota2.com/patches/",
+    "https://dota2.com/patches/",
+];
 
 client.on("message", (msg) => {
     if (msg.content === "!patchnotes" && msg.channelId === auth.channelId) {
@@ -50,15 +53,16 @@ function getPatchNotes() {
                 if (tweet.entities) {
                     if (tweet.entities.urls) {
                         tweet.entities.urls.forEach((url) => {
-                            console.log(latestPatchTweet);
-                            console.log(Date.parse(tweet.created_at));
                             if (
-                                url.expanded_url.includes(inclusion) &&
                                 Date.parse(tweet.created_at) >
-                                    Date.parse(latestPatchTweet)
+                                Date.parse(latestPatchTweet)
                             ) {
-                                postPatchNotes(url.expanded_url);
-                                latestPatchTweet = tweet.created_at;
+                                inclusion.forEach((entry) => {
+                                    if (url.expanded_url.includes(entry)) {
+                                        postPatchNotes(url.expanded_url);
+                                        latestPatchTweet = tweet.created_at;
+                                    }
+                                });
                             }
                         });
                     }
