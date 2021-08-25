@@ -12,11 +12,7 @@ let latestPatchTweet = new Date(2020, 11, 24, 10, 33, 30, 0);
 const inclusion = "https://www.dota2.com/patches/";
 
 client.on("message", (msg) => {
-    if (msg.content === "ping") {
-        msg.reply("pong!");
-    }
-
-    if (msg.content === "!patchnotes") {
+    if (msg.content === "!patchnotes" && msg.channelId === auth.channelIdTest) {
         getPatchNotes();
     }
 });
@@ -45,31 +41,33 @@ let requestOptions = {
 
 function getPatchNotes() {
     fetch(
-        `https://api.twitter.com/2/users/${auth.userIdTest}/tweets?tweet.fields=entities,created_at`,
+        `https://api.twitter.com/2/users/${auth.userId}/tweets?tweet.fields=entities,created_at`,
         requestOptions
     )
         .then((response) => response.json())
         .then((json) => {
             json.data.forEach((tweet) => {
-                if (tweet.entities.urls) {
-                    tweet.entities.urls.forEach((url) => {
-                        console.log(latestPatchTweet);
-                        console.log(Date.parse(tweet.created_at));
-                        if (
-                            url.expanded_url.includes(inclusion) &&
-                            Date.parse(tweet.created_at) >
-                                Date.parse(latestPatchTweet)
-                        ) {
-                            postPatchNotes(url.expanded_url);
-                            latestPatchTweet = tweet.created_at;
-                        }
-                    });
+                if (tweet.entities) {
+                    if (tweet.entities.urls) {
+                        tweet.entities.urls.forEach((url) => {
+                            console.log(latestPatchTweet);
+                            console.log(Date.parse(tweet.created_at));
+                            if (
+                                url.expanded_url.includes(inclusion) &&
+                                Date.parse(tweet.created_at) >
+                                    Date.parse(latestPatchTweet)
+                            ) {
+                                postPatchNotes(url.expanded_url);
+                                latestPatchTweet = tweet.created_at;
+                            }
+                        });
+                    }
                 }
             });
         });
 }
 function postPatchNotes(url) {
     client.channels.cache
-        .get(auth.channelIdTest)
-        .send("🔥💯🔥 New patch! 🔥💯🔥" + "\n" + url + "\n" + "@everyone");
+        .get(auth.channelId)
+        .send("🔥💯🔥 New patch! 🔥💯🔥" + "\n" + url);
 }
